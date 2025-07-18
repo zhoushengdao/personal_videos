@@ -132,7 +132,7 @@ class A11yAttrScene(Scene):
                 corner_radius=0.2,
                 fill_color=MaterialColors.SECONDARY_CONTAINER,
                 fill_opacity=0.8,
-                stroke_color=MaterialColors.OUTLINE,
+                stroke_color=MaterialColors.OUTLINE_VARIANT,
                 stroke_width=1,
             )
 

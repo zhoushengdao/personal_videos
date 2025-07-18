@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -21,10 +23,19 @@ jobs:
           python-version: "3.13"
           cache: "pip"
 
-      - name: Install dependencies
+      - name: Install dependencies & Configure system
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev
+          sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev ffmpeg locales language-pack-zh-hans
+
+          sudo locale-gen zh_CN.UTF-8
+          echo "LANG=zh_CN.UTF-8" | sudo tee /etc/default/locale
+
+          sudo mkdir -p /usr/share/fonts/harmonyos-sans-sc
+          sudo cp $GITHUB_WORKSPACE/assets/fonts/*.ttf /usr/share/fonts/harmonyos-sans-sc/
+          sudo chmod 644 /usr/share/fonts/harmonyos-sans-sc/*
+          sudo fc-cache -fv
+
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
