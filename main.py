@@ -216,7 +216,7 @@ class <PROJECT_NAME>Scene(Scene):
         splash_screen(self)
 
         # 自定义内容
-        
+
         end_screen(self)
 
 
