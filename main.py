@@ -23,12 +23,12 @@ def main():
     # 安装命令
     install_parser = subparsers.add_parser(
         "install",
-        help="安装 pip 依赖包",
+        help="更新并安装 pip 依赖包",
     )
     install_parser.add_argument(
         "packages",
         nargs="*",
-        help="要新安装的 pip 包",
+        help="需要新安装的 pip 包",
     )
 
     # 预览命令
@@ -85,7 +85,7 @@ def main():
 
 def handle_install(packages: list[str]):
     """
-    执行安装 pip 依赖包命令。
+    执行更新并安装 pip 依赖包命令。
 
     Args:
         packages: 要新安装的 pip 包

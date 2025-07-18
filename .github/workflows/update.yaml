@@ -1,0 +1,43 @@
+name: Render Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: "项目名称"
+        required: true
+        type: string
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Render video
+        run: python main.py prod ${{ inputs.project_name }}
+
+      - name: Copy video
+        run: |
+          mkdir -p video_artifacts
+          find media/videos/main/2160p60 -maxdepth 1 -type f -exec cp {} video_artifacts/ \;
+          ls -lh video_artifacts
+
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.project_name }}
+          path: video_artifacts/*
+          retention-days: 7
