@@ -1,5 +1,6 @@
-"""模版信息"""
+"""模版文件"""
 
+from os import environ
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -19,12 +20,10 @@ from manim import (
     ORIGIN,
 )
 
-DEFAULT_FONT = "HarmonyOS Sans SC"
-
 
 @dataclass
-class MaterialColors:
-    """Material 3 调色板"""
+class MaterialDesign:
+    """Material 3 设计"""
 
     PRIMARY = "#E2B7F4"
     ON_PRIMARY = "#000000"
@@ -70,40 +69,58 @@ class MaterialColors:
     SCRIM = "#000000"
 
 
-def splash_screen(scene: Scene):
-    """显示 Android 风格的启动屏动画"""
-    avatar = ImageMobject(
-        Path(__file__).resolve().parent / "assets" / "avatar.jpg"
-    ).move_to(ORIGIN)
-    avatar.set_height(2)
-    mask = Annulus(
-        inner_radius=1, outer_radius=2, color=config.background_color
-    ).move_to(ORIGIN)
-    progressbar = Arc(
-        radius=1,
-        color=MaterialColors.PRIMARY,
-        start_angle=(PI / 2),
-        angle=-TAU,
-        stroke_width=6,
-    ).move_to(ORIGIN)
-    scene.add(avatar)
-    scene.add(mask)
-    scene.play(FadeIn(avatar), run_time=1)
-    scene.play(Create(progressbar, run_time=1))
-    scene.wait(1)
-    scene.play(
-        mask.animate.scale(4),
-        avatar.animate.scale(4).fade(1),
-        progressbar.animate.scale(4).fade(1),
-        run_time=1,
-    )
-    scene.remove(avatar, progressbar, mask)
+class Template:
+    """模版类"""
 
+    DEFAULT_FONT = "HarmonyOS Sans SC"
 
-def end_screen(scene: Scene, *animations: Animation):
-    """显示 ManimBanner 结束动画"""
-    banner = ManimBanner()
-    scene.play(banner.create())
-    scene.play(banner.expand())
-    scene.wait(2)
-    scene.play(Unwrite(banner), *animations)
+    @staticmethod
+    def cached_files_num(filename):
+        """获取缓存文件数量"""
+        if environ.get("GITHUB_ACTIONS") == "true":
+            return -1
+
+        match Path(filename).resolve().parent.name:
+            case "A11yAttr":
+                return 306
+            case _:
+                return 100
+
+    @staticmethod
+    def splash_screen(scene: Scene):
+        """显示 Android 风格的启动屏动画"""
+        avatar = ImageMobject(
+            Path(__file__).resolve().parent / "assets" / "avatar.jpg"
+        ).move_to(ORIGIN)
+        avatar.set_height(2)
+        mask = Annulus(
+            inner_radius=1, outer_radius=2, color=config.background_color
+        ).move_to(ORIGIN)
+        progressbar = Arc(
+            radius=1,
+            color=MaterialDesign.PRIMARY,
+            start_angle=(PI / 2),
+            angle=-TAU,
+            stroke_width=6,
+        ).move_to(ORIGIN)
+        scene.add(avatar)
+        scene.add(mask)
+        scene.play(FadeIn(avatar), run_time=1)
+        scene.play(Create(progressbar, run_time=1))
+        scene.wait(1)
+        scene.play(
+            mask.animate.scale(4),
+            avatar.animate.scale(4).fade(1),
+            progressbar.animate.scale(4).fade(1),
+            run_time=1,
+        )
+        scene.remove(avatar, progressbar, mask)
+
+    @staticmethod
+    def end_screen(scene: Scene, *animations: Animation):
+        """显示 ManimBanner 结束动画"""
+        banner = ManimBanner()
+        scene.play(banner.create())
+        scene.play(banner.expand())
+        scene.wait(2)
+        scene.play(Unwrite(banner), *animations)

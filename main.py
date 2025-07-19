@@ -175,7 +175,7 @@ def handle_preview(project_name: Optional[str] = None):
         project_name = select_project()
     validate_project(project_name)
     print(f"预览 {project_name}……")
-    run(["manim", "-pql", f"{project_name}/main.py"], check=True)
+    run(["manim", "render", "-pql", f"{project_name}/main.py"], check=True)
 
 
 def handle_production(project_name: Optional[str] = None):
@@ -189,7 +189,7 @@ def handle_production(project_name: Optional[str] = None):
         project_name = select_project()
     validate_project(project_name)
     print(f"渲染 {project_name}……")
-    run(["manim", "-qk", f"{project_name}/main.py"], check=True)
+    run(["manim", "render", "-qk", f"{project_name}/main.py"], check=True)
 
 
 MAIN_TEMPLATE = """\"\"\"<PROJECT_NAME> 视频\"\"\"
@@ -202,22 +202,23 @@ from manim import Scene, Text, config
 path.append(str(Path(__file__).resolve().parent.parent))
 
 # pylint: disable=wrong-import-position
-from template import DEFAULT_FONT, MaterialColors, splash_screen, end_screen
+from template import MaterialDesign, Template
 
-config.background_color = MaterialColors.SURFACE
+config.background_color = MaterialDesign.SURFACE
+config.max_files_cached = Template.cached_files_num(__file__)
 
 
 class <PROJECT_NAME>Scene(Scene):
     \"\"\"<PROJECT_NAME> 场景\"\"\"
 
     def construct(self):
-        Text.set_default(font=DEFAULT_FONT)
+        Text.set_default(font=Template.DEFAULT_FONT)
 
-        splash_screen(self)
+        Template.splash_screen(self)
 
         # 自定义内容
 
-        end_screen(self)
+        Template.end_screen(self)
 
 
 if __name__ == "__main__":

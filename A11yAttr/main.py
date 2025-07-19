@@ -24,27 +24,28 @@ from data import ARIA_ATTRIBUTES_DATA
 path.append(str(Path(__file__).resolve().parent.parent))
 
 # pylint: disable=wrong-import-position
-from template import DEFAULT_FONT, MaterialColors, splash_screen, end_screen
+from template import MaterialDesign, Template
 
-config.background_color = MaterialColors.SURFACE
+config.background_color = MaterialDesign.SURFACE
+config.max_files_cached = Template.cached_files_num(__file__)
 
 
 class A11yAttrScene(Scene):
     """A11yAttr 场景"""
 
     def construct(self):
-        Text.set_default(font=DEFAULT_FONT)
+        Text.set_default(font=Template.DEFAULT_FONT)
 
-        splash_screen(self)
+        Template.splash_screen(self)
 
         # 标题动画
         title = Text(
             "WAI-ARIA 1.2 属性介绍",
             font_size=72,
-            color=MaterialColors.PRIMARY,
+            color=MaterialDesign.PRIMARY,
         )
         subtitle = Text(
-            "全部 48 个无障碍属性简介", font_size=36, color=MaterialColors.ON_SURFACE
+            "全部 48 个无障碍属性简介", font_size=36, color=MaterialDesign.ON_SURFACE
         )
 
         # 动画序列
@@ -98,17 +99,17 @@ class A11yAttrScene(Scene):
             Text(
                 "提升 Web 无障碍体验",
                 font_size=72,
-                gradient=(MaterialColors.PRIMARY, MaterialColors.TERTIARY),
+                gradient=(MaterialDesign.PRIMARY, MaterialDesign.TERTIARY),
             ),
             Text(
                 "为所有用户创造包容性数字环境",
                 font_size=36,
-                color=MaterialColors.ON_SURFACE,
+                color=MaterialDesign.ON_SURFACE,
             ),
             Text(
                 "https://www.w3.org/TR/wai-aria/",
                 font_size=24,
-                color=MaterialColors.ON_SURFACE,
+                color=MaterialDesign.ON_SURFACE,
             ),
         )
         final_group.arrange(DOWN, buff=0.5)
@@ -119,7 +120,7 @@ class A11yAttrScene(Scene):
         # 渐变退出
         self.play(FadeOut(final_group))
 
-        end_screen(self, FadeOut(title))
+        Template.end_screen(self, FadeOut(title))
 
     def create_attribute_cards(self) -> list[VGroup]:
         """创建属性卡片网格"""
@@ -130,9 +131,9 @@ class A11yAttrScene(Scene):
                 height=0.6,
                 width=2.6,
                 corner_radius=0.2,
-                fill_color=MaterialColors.SECONDARY_CONTAINER,
+                fill_color=MaterialDesign.SECONDARY_CONTAINER,
                 fill_opacity=0.8,
-                stroke_color=MaterialColors.OUTLINE_VARIANT,
+                stroke_color=MaterialDesign.OUTLINE_VARIANT,
                 stroke_width=1,
             )
 
@@ -140,7 +141,7 @@ class A11yAttrScene(Scene):
             name = Text(
                 attribute["name"],
                 font_size=14,
-                color=MaterialColors.ON_SECONDARY_CONTAINER,
+                color=MaterialDesign.ON_SECONDARY_CONTAINER,
                 font="JetBrains Mono",
             )
             name.move_to(card.get_center())
@@ -164,8 +165,8 @@ class A11yAttrScene(Scene):
             ARIA_ATTRIBUTES_DATA[index]["description"],
             font_size=30,
             line_spacing=0.5,
-            color=MaterialColors.ON_SURFACE,
-            t2c={"[在 ARIA 1.1 中弃用]": MaterialColors.ERROR_CONTAINER},
+            color=MaterialDesign.ON_SURFACE,
+            t2c={"[在 ARIA 1.1 中弃用]": MaterialDesign.ERROR_CONTAINER},
         )
         description.next_to(attribute_card, DOWN, buff=0.5, aligned_edge=LEFT)
 
@@ -176,7 +177,7 @@ class A11yAttrScene(Scene):
             line_spacing=(
                 0.5 if ARIA_ATTRIBUTES_DATA[index]["name"] != "aria-dropeffect" else 0.3
             ),
-            color=MaterialColors.ON_SURFACE,
+            color=MaterialDesign.ON_SURFACE,
         )
         value_type.next_to(description, DOWN, buff=0.5, aligned_edge=LEFT)
 
