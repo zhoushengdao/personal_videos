@@ -33,8 +33,9 @@ jobs:
           export LANG=zh_CN.UTF-8
 
           sudo mkdir -p /usr/share/fonts/custom-fonts
-          sudo find $GITHUB_WORKSPACE/assets/fonts/ -type f \( -iname "*.ttf" -o -iname "*.otf" \) -exec sudo cp -v {} /usr/share/fonts/custom-fonts/ \;
-          sudo chmod 644 /usr/share/fonts/custom-fonts/*
+          sudo cp -R $GITHUB_WORKSPACE/assets/fonts/ /usr/share/fonts/custom-fonts/
+          sudo find /usr/share/fonts/custom-fonts -type d -exec chmod 755 {} \;
+          sudo find /usr/share/fonts/custom-fonts -type f -exec chmod 644 {} \;
           sudo fc-cache -fv
           fc-list | grep "/custom-fonts/"
 
