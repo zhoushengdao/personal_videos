@@ -17,6 +17,7 @@ from manim import (
     ORIGIN,
     LaggedStart,
     RoundedRectangle,
+    Wait,
 )
 
 from data import ARIA_ATTRIBUTES_DATA
@@ -49,11 +50,12 @@ class A11yAttrScene(Scene):
         )
 
         # 动画序列
-        self.play(Write(title))
-        self.wait(0.5)
+        self.play(Write(title), subcaption="WAI-ARIA 1.2 属性介绍")
+        self.wait(1)
         self.play(
             title.animate.to_edge(UP, buff=0).set_font_size(48),
             FadeIn(subtitle, shift=UP),
+            subcaption="全部 48 个无障碍属性简介",
         )
         self.wait(1)
 
@@ -82,6 +84,7 @@ class A11yAttrScene(Scene):
                     title, DOWN + LEFT, buff=1, aligned_edge=LEFT
                 ),
                 *[c.animate.set_opacity(0) for c in cards if c != card],
+                subcaption=f"第 {i + 1} 个 {ARIA_ATTRIBUTES_DATA[i]["name"]}",
             )
 
             # 解释属性
@@ -152,13 +155,13 @@ class A11yAttrScene(Scene):
 
         return cards
 
-    def arrange_in_grid(self, cards, title):
+    def arrange_in_grid(self, cards: list[VGroup], title: Text):
         """将属性卡片网格排列成 10 行 5 列"""
         grid = VGroup(*cards).arrange_in_grid(rows=10, cols=5, buff=(0.1, 0.1))
         grid.next_to(title, DOWN, buff=0.2)
         return grid
 
-    def explain_attribute(self, index, attribute_card):
+    def explain_attribute(self, index: int, attribute_card: VGroup):
         """逐个详细介绍属性"""
         # 创建描述内容
         description = Text(
@@ -182,8 +185,6 @@ class A11yAttrScene(Scene):
         value_type.next_to(description, DOWN, buff=0.5, aligned_edge=LEFT)
 
         # 动画展示
-        self.play(Write(description))
-        self.play(FadeIn(value_type, scale=0.9))
         wait_time = max(
             (
                 len(
@@ -194,14 +195,33 @@ class A11yAttrScene(Scene):
             ),
             1,
         )
-        print(ARIA_ATTRIBUTES_DATA[index]["name"], wait_time)
-        self.wait(wait_time)
+        self.play(
+            LaggedStart(
+                Write(description),
+                FadeIn(value_type, scale=0.9),
+                Wait(wait_time),
+                lag_ratio=1,
+            ),
+            subcaption=self.get_description_subcaption(index),
+        )
 
         # 清理场景
         self.play(
             FadeOut(description),
             FadeOut(value_type),
         )
+
+    @staticmethod
+    def get_description_subcaption(index):
+        """获取属性描述的字幕"""
+        description = ARIA_ATTRIBUTES_DATA[index]["description"]
+        subcaption = f"它用于{description}"
+        if "[在 ARIA 1.1 中弃用]" in description:
+            subcaption = (
+                subcaption.replace("[在 ARIA 1.1 中弃用] ", "")
+                + "它已在 ARIA 1.1 中弃用。"
+            )
+        return subcaption
 
 
 if __name__ == "__main__":
