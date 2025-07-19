@@ -30,11 +30,13 @@ jobs:
 
           sudo locale-gen zh_CN.UTF-8
           echo "LANG=zh_CN.UTF-8" | sudo tee /etc/default/locale
+          export LANG=zh_CN.UTF-8
 
-          sudo mkdir -p /usr/share/fonts/harmonyos-sans-sc
-          sudo cp $GITHUB_WORKSPACE/assets/fonts/*.ttf /usr/share/fonts/harmonyos-sans-sc/
-          sudo chmod 644 /usr/share/fonts/harmonyos-sans-sc/*
+          sudo mkdir -p /usr/share/fonts/custom-fonts
+          sudo find $GITHUB_WORKSPACE/assets/fonts/ -type f \( -iname "*.ttf" -o -iname "*.otf" \) -exec sudo cp -v {} /usr/share/fonts/custom-fonts/ \;
+          sudo chmod 644 /usr/share/fonts/custom-fonts/*
           sudo fc-cache -fv
+          fc-list | grep "/custom-fonts/"
 
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -45,7 +47,7 @@ jobs:
       - name: Copy video
         run: |
           mkdir -p video_artifacts
-          find media/videos/main/2160p60 -maxdepth 1 -type f -exec cp {} video_artifacts/ \;
+          find media/videos/main/2160p60 -maxdepth 1 -type f -exec cp -v {} video_artifacts/ \;
           ls -lh video_artifacts
 
       - name: Upload video

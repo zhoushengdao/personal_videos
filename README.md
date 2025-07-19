@@ -69,6 +69,11 @@ personal_videos/
     └── main.py          # 项目主文件
 ```
 
+## 现有全局资源
+
+- avatar.jpg：个人头像
+- fonts/：HarmonyOS Sans SC 和 JetBrains Mono 字体
+
 ## 许可证
 
 本项目采用 [署名—非商业性使用—禁止演绎 4.0 协议国际版](LICENSE)。
