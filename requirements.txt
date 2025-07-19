@@ -6,12 +6,22 @@
 #
 --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
+aiohappyeyeballs==2.6.1
+    # via aiohttp
+aiohttp==3.12.14
+    # via edge-tts
+aiosignal==1.4.0
+    # via aiohttp
+attrs==25.3.0
+    # via aiohttp
 audioop-lts==0.2.1
     # via manim
 av==13.1.0
     # via manim
 beautifulsoup4==4.13.4
     # via manim
+certifi==2025.7.14
+    # via edge-tts
 click==8.2.1
     # via
     #   cloup
@@ -24,8 +34,16 @@ colorama==0.4.6
     #   tqdm
 decorator==5.2.1
     # via manim
+edge-tts==7.0.2
+    # via -r requirements.in
+frozenlist==1.7.0
+    # via
+    #   aiohttp
+    #   aiosignal
 glcontext==3.0.0
     # via moderngl
+idna==3.10
+    # via yarl
 isosurfaces==0.1.2
     # via manim
 manim==0.19.0
@@ -44,11 +62,14 @@ moderngl==5.12.0
     #   moderngl-window
 moderngl-window==3.1.1
     # via manim
+multidict==6.6.3
+    # via
+    #   aiohttp
+    #   yarl
 networkx==3.5
     # via manim
 numpy==2.3.1
     # via
-    #   -r requirements.in
     #   isosurfaces
     #   manim
     #   mapbox-earcut
@@ -58,6 +79,10 @@ pillow==11.3.0
     # via
     #   manim
     #   moderngl-window
+propcache==0.3.2
+    # via
+    #   aiohttp
+    #   yarl
 pycairo==1.28.0
     # via manim
 pydub==0.25.1
@@ -81,14 +106,21 @@ skia-pathops==0.8.0.post2
 soupsieve==2.7
     # via beautifulsoup4
 srt==3.5.3
-    # via manim
+    # via
+    #   edge-tts
+    #   manim
 svgelements==1.9.6
     # via manim
+tabulate==0.9.0
+    # via edge-tts
 tqdm==4.67.1
     # via manim
 typing-extensions==4.14.1
     # via
     #   beautifulsoup4
+    #   edge-tts
     #   manim
 watchdog==6.0.0
     # via manim
+yarl==1.20.1
+    # via aiohttp

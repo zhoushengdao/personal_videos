@@ -1,4 +1,4 @@
-"""模版文件"""
+"""模版与实用工具类"""
 
 from os import environ
 from pathlib import Path
@@ -82,7 +82,7 @@ class Template:
 
         match Path(filename).resolve().parent.name:
             case "A11yAttr":
-                return 306
+                return 209
             case _:
                 return 100
 
@@ -124,3 +124,4 @@ class Template:
         scene.play(banner.expand())
         scene.wait(2)
         scene.play(Unwrite(banner), *animations)
+        scene.wait(0.1)

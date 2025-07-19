@@ -74,6 +74,47 @@ personal_videos/
 - avatar.jpg：个人头像
 - fonts/：HarmonyOS Sans SC 和 JetBrains Mono 字体
 
+## 可用的音色
+
+| Name                           | Gender | ContentCategories     | VoicePersonalities                     |
+| ------------------------------ | ------ | --------------------- | -------------------------------------- |
+| en-GB-LibbyNeural              | Female | General               | Friendly, Positive                     |
+| en-GB-MaisieNeural             | Female | General               | Friendly, Positive                     |
+| en-GB-RyanNeural               | Male   | General               | Friendly, Positive                     |
+| en-GB-SoniaNeural              | Female | General               | Friendly, Positive                     |
+| en-GB-ThomasNeural             | Male   | General               | Friendly, Positive                     |
+| en-US-AnaNeural                | Female | Cartoon, Conversation | Cute                                   |
+| en-US-AndrewMultilingualNeural | Male   | Conversation, Copilot | Warm, Confident, Authentic, Honest     |
+| en-US-AndrewNeural             | Male   | Conversation, Copilot | Warm, Confident, Authentic, Honest     |
+| en-US-AriaNeural               | Female | News, Novel           | Positive, Confident                    |
+| en-US-AvaMultilingualNeural    | Female | Conversation, Copilot | Expressive, Caring, Pleasant, Friendly |
+| en-US-AvaNeural                | Female | Conversation, Copilot | Expressive, Caring, Pleasant, Friendly |
+| en-US-BrianMultilingualNeural  | Male   | Conversation, Copilot | Approachable, Casual, Sincere          |
+| en-US-BrianNeural              | Male   | Conversation, Copilot | Approachable, Casual, Sincere          |
+| en-US-ChristopherNeural        | Male   | News, Novel           | Reliable, Authority                    |
+| en-US-EmmaMultilingualNeural   | Female | Conversation, Copilot | Cheerful, Clear, Conversational        |
+| en-US-EmmaNeural               | Female | Conversation, Copilot | Cheerful, Clear, Conversational        |
+| en-US-EricNeural               | Male   | News, Novel           | Rational                               |
+| en-US-GuyNeural                | Male   | News, Novel           | Passion                                |
+| en-US-JennyNeural              | Female | General               | Friendly, Considerate, Comfort         |
+| en-US-MichelleNeural           | Female | News, Novel           | Friendly, Pleasant                     |
+| en-US-RogerNeural              | Male   | News, Novel           | Lively                                 |
+| en-US-SteffanNeural            | Male   | News, Novel           | Rational                               |
+| zh-CN-XiaoxiaoNeural           | Female | News, Novel           | Warm                                   |
+| zh-CN-XiaoyiNeural             | Female | Cartoon, Novel        | Lively                                 |
+| zh-CN-YunjianNeural            | Male   | Sports, Novel         | Passion                                |
+| zh-CN-YunxiNeural              | Male   | Novel                 | Lively, Sunshine                       |
+| zh-CN-YunxiaNeural             | Male   | Cartoon, Novel        | Cute                                   |
+| zh-CN-YunyangNeural            | Male   | News                  | Professional, Reliable                 |
+| zh-CN-liaoning-XiaobeiNeural   | Female | Dialect               | Humorous                               |
+| zh-CN-shaanxi-XiaoniNeural     | Female | Dialect               | Bright                                 |
+| zh-HK-HiuGaaiNeural            | Female | General               | Friendly, Positive                     |
+| zh-HK-HiuMaanNeural            | Female | General               | Friendly, Positive                     |
+| zh-HK-WanLungNeural            | Male   | General               | Friendly, Positive                     |
+| zh-TW-HsiaoChenNeural          | Female | General               | Friendly, Positive                     |
+| zh-TW-HsiaoYuNeural            | Female | General               | Friendly, Positive                     |
+| zh-TW-YunJheNeural             | Male   | General               | Friendly, Positive                     |
+
 ## 许可证
 
 本项目采用 [署名—非商业性使用—禁止演绎 4.0 协议国际版](LICENSE)。

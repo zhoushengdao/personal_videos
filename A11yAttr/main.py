@@ -18,6 +18,7 @@ from manim import (
     LaggedStart,
     RoundedRectangle,
     Wait,
+    AnimationGroup,
 )
 
 from data import ARIA_ATTRIBUTES_DATA
@@ -29,6 +30,10 @@ from template import MaterialDesign, Template
 
 config.background_color = MaterialDesign.SURFACE
 config.max_files_cached = Template.cached_files_num(__file__)
+
+
+# edge-tts --voice zh-CN-YunyangNeural --text "W A I - A R I A 1.2 属性介绍" --write-media title.mp3
+# edge-tts --voice zh-CN-YunyangNeural --text "全部 48 个无障碍属性简介" --write-media subtitle.mp3
 
 
 class A11yAttrScene(Scene):
@@ -50,14 +55,21 @@ class A11yAttrScene(Scene):
         )
 
         # 动画序列
-        self.play(Write(title), subcaption="WAI-ARIA 1.2 属性介绍")
-        self.wait(1)
         self.play(
-            title.animate.to_edge(UP, buff=0).set_font_size(48),
-            FadeIn(subtitle, shift=UP),
+            LaggedStart(Write(title), Wait(1), lag_ratio=1),
+            subcaption="WAI-ARIA 1.2 属性介绍",
+        )
+        self.play(
+            LaggedStart(
+                AnimationGroup(
+                    title.animate.to_edge(UP, buff=0).set_font_size(48),
+                    FadeIn(subtitle, shift=UP),
+                ),
+                Wait(1),
+                lag_ratio=1,
+            ),
             subcaption="全部 48 个无障碍属性简介",
         )
-        self.wait(1)
 
         # 创建属性卡片网格
         cards = self.create_attribute_cards()
@@ -105,7 +117,7 @@ class A11yAttrScene(Scene):
                 gradient=(MaterialDesign.PRIMARY, MaterialDesign.TERTIARY),
             ),
             Text(
-                "为所有用户创造包容性数字环境",
+                "为所有用户创造包容性的数字环境",
                 font_size=36,
                 color=MaterialDesign.ON_SURFACE,
             ),
@@ -117,10 +129,15 @@ class A11yAttrScene(Scene):
         )
         final_group.arrange(DOWN, buff=0.5)
         final_group.move_to(ORIGIN)
-        self.play(FadeIn(final_group, shift=UP))
-        self.wait(2)
-
-        # 渐变退出
+        self.play(
+            LaggedStart(
+                FadeIn(final_group, shift=UP),
+                Wait(2),
+                lag_ratio=1,
+            ),
+            subcaption="让我们一起提升 Web 无障碍体验，为所有用户创造包容性的数字环境",
+            subcaption_offset=0.5,  # type: ignore
+        )
         self.play(FadeOut(final_group))
 
         Template.end_screen(self, FadeOut(title))
@@ -198,7 +215,7 @@ class A11yAttrScene(Scene):
         self.play(
             LaggedStart(
                 Write(description),
-                FadeIn(value_type, scale=0.9),
+                FadeIn(value_type, scale=0.8),
                 Wait(wait_time),
                 lag_ratio=1,
             ),
@@ -212,10 +229,10 @@ class A11yAttrScene(Scene):
         )
 
     @staticmethod
-    def get_description_subcaption(index):
+    def get_description_subcaption(index: int):
         """获取属性描述的字幕"""
         description = ARIA_ATTRIBUTES_DATA[index]["description"]
-        subcaption = f"它用于{description}"
+        subcaption = f"它用于{description.replace("\n", "")}"
         if "[在 ARIA 1.1 中弃用]" in description:
             subcaption = (
                 subcaption.replace("[在 ARIA 1.1 中弃用] ", "")
