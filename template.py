@@ -1,6 +1,5 @@
 """模版与实用工具类"""
 
-from json import dumps
 from os import environ
 from pathlib import Path
 from dataclasses import dataclass
@@ -23,7 +22,7 @@ from manim import (
     ORIGIN,
 )
 from edge_tts import Communicate
-from mutagen.mp3 import MP3
+from mutagen.mp3 import MP3, HeaderNotFoundError
 
 
 @dataclass
@@ -81,13 +80,13 @@ class Template:
     DEFAULT_VOICE = "zh-CN-YunyangNeural"
 
     @staticmethod
-    def cached_files_num(filename):
+    def cached_files_num(filename: str):
         """获取缓存文件数量"""
         if environ.get("GITHUB_ACTIONS") == "true":
             return -1
 
         match Path(filename).resolve().parent.name:
-            case "A11yAttr":
+            case "ARIAAttr":
                 return 209
             case _:
                 return 100
@@ -146,10 +145,20 @@ class Template:
         cache_dir = Path(__file__).resolve().parent / "media" / "audios"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        audio_path = str(
+        audio_path = (
             cache_dir
             / f"{crc32(f'?={text}&={voice}&={rate}&={volume}&={pitch}'.encode())}.mp3"
         )
+        audio_path_str = str(audio_path)
+
+        if audio_path.exists():
+            try:
+                audio = MP3(audio_path_str)
+                if audio.info.length > 0:
+                    return audio_path_str, audio.info.length
+                audio_path.unlink()
+            except HeaderNotFoundError:
+                audio_path.unlink()
 
         communicate = Communicate(
             text=text,
@@ -158,6 +167,6 @@ class Template:
             volume=volume,
             pitch=pitch,
         )
-        communicate.save_sync(audio_path)
+        communicate.save_sync(audio_path_str)
 
-        return (audio_path, MP3(audio_path).info.length)
+        return (audio_path_str, MP3(audio_path_str).info.length)

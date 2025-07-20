@@ -1,4 +1,4 @@
-"""A11yAttr 视频"""
+"""ARIAAttr 视频"""
 
 from sys import path
 from pathlib import Path
@@ -32,12 +32,14 @@ config.background_color = MaterialDesign.SURFACE
 config.max_files_cached = Template.cached_files_num(__file__)
 
 
-# edge-tts --voice zh-CN-YunyangNeural --text "W A I - A R I A 1.2 属性介绍" --write-media title.mp3
-# edge-tts --voice zh-CN-YunyangNeural --text "全部 48 个无障碍属性简介" --write-media subtitle.mp3
+class ARIAAttrScene(Scene):
+    """ARIAAttr 场景"""
 
-
-class A11yAttrScene(Scene):
-    """A11yAttr 场景"""
+    def _(self, text: str):
+        """快捷方法"""
+        audio_path, duration = Template.tts(text)
+        self.add_sound(audio_path)
+        print(f"{audio_path.rsplit('/', maxsplit=1)[-1]} {duration}s")
 
     def construct(self):
         Text.set_default(font=Template.DEFAULT_FONT)
@@ -55,10 +57,12 @@ class A11yAttrScene(Scene):
         )
 
         # 动画序列
+        self._("W A I - A R I A 1.2 属性介绍")
         self.play(
             LaggedStart(Write(title), Wait(1), lag_ratio=1),
             subcaption="WAI-ARIA 1.2 属性介绍",
         )
+        self._("全部 48 个无障碍属性简介")
         self.play(
             LaggedStart(
                 AnimationGroup(
@@ -91,6 +95,7 @@ class A11yAttrScene(Scene):
             origin_center = card.get_center()
 
             # 高亮当前卡片
+            self._(f"第 {i + 1} 个 {ARIA_ATTRIBUTES_DATA[i]["name"]}")
             self.play(
                 card.animate.scale(1.5).next_to(
                     title, DOWN + LEFT, buff=1, aligned_edge=LEFT
@@ -129,6 +134,7 @@ class A11yAttrScene(Scene):
         )
         final_group.arrange(DOWN, buff=0.5)
         final_group.move_to(ORIGIN)
+        self._("让我们一起提升 Web 无障碍体验，为所有用户创造包容性的数字环境")
         self.play(
             LaggedStart(
                 FadeIn(final_group, shift=UP),
@@ -212,6 +218,7 @@ class A11yAttrScene(Scene):
             ),
             1,
         )
+        self._(self.get_description_subcaption(index))
         self.play(
             LaggedStart(
                 Write(description),
@@ -242,5 +249,5 @@ class A11yAttrScene(Scene):
 
 
 if __name__ == "__main__":
-    scene = A11yAttrScene()
+    scene = ARIAAttrScene()
     scene.render()
