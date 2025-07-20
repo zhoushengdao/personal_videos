@@ -66,6 +66,8 @@ multidict==6.6.3
     # via
     #   aiohttp
     #   yarl
+mutagen==1.47.0
+    # via -r requirements.in
 networkx==3.5
     # via manim
 numpy==2.3.1

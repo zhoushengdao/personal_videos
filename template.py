@@ -1,8 +1,11 @@
 """模版与实用工具类"""
 
+from json import dumps
 from os import environ
 from pathlib import Path
 from dataclasses import dataclass
+from typing import Tuple
+from zlib import crc32
 
 from manim import (
     Scene,
@@ -19,6 +22,8 @@ from manim import (
     Create,
     ORIGIN,
 )
+from edge_tts import Communicate
+from mutagen.mp3 import MP3
 
 
 @dataclass
@@ -73,6 +78,7 @@ class Template:
     """模版类"""
 
     DEFAULT_FONT = "HarmonyOS Sans SC"
+    DEFAULT_VOICE = "zh-CN-YunyangNeural"
 
     @staticmethod
     def cached_files_num(filename):
@@ -125,3 +131,33 @@ class Template:
         scene.wait(2)
         scene.play(Unwrite(banner), *animations)
         scene.wait(0.1)
+
+    @staticmethod
+    def tts(
+        text: str,
+        voice: str = DEFAULT_VOICE,
+        *,
+        # * edge_tts\communicate.py
+        rate: str = "+0%",
+        volume: str = "+0%",
+        pitch: str = "+0Hz",
+    ) -> Tuple[str, float]:
+        """使用 Microsoft Edge TTS 朗读文本"""
+        cache_dir = Path(__file__).resolve().parent / "media" / "audios"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        audio_path = str(
+            cache_dir
+            / f"{crc32(f'?={text}&={voice}&={rate}&={volume}&={pitch}'.encode())}.mp3"
+        )
+
+        communicate = Communicate(
+            text=text,
+            voice=voice,
+            rate=rate,
+            volume=volume,
+            pitch=pitch,
+        )
+        communicate.save_sync(audio_path)
+
+        return (audio_path, MP3(audio_path).info.length)

@@ -12,7 +12,7 @@ ARIA_ATTRIBUTES_DATA = [
     },
     {
         "name": "aria-atomic",
-        "description": "指示辅助技术将根据 aria-relevant 属性定义的变更通知，完整呈现变更\n区域还是部分呈现。",
+        "description": "指示辅助技术将根据 aria-relevant 属性定义的变更通知，是完整呈现变\n更区域还是部分呈现。",
         "value": "取值：true/false"
         f"{NL}false（默认）：辅助技术仅呈现变更的节点"
         f"{NL}true：辅助技术将整个变更区域作为整体呈现，包含作者定义的标{NLP}签（若存在）",
