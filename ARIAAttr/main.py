@@ -1,5 +1,6 @@
 """ARIAAttr 视频"""
 
+from math import ceil
 from sys import path
 from pathlib import Path
 
@@ -35,12 +36,6 @@ config.max_files_cached = Template.cached_files_num(__file__)
 class ARIAAttrScene(Scene):
     """ARIAAttr 场景"""
 
-    def _(self, text: str):
-        """快捷方法"""
-        audio_path, duration = Template.tts(text)
-        self.add_sound(audio_path)
-        print(f"{audio_path.rsplit('/', maxsplit=1)[-1]} {duration}s")
-
     def construct(self):
         Text.set_default(font=Template.DEFAULT_FONT)
 
@@ -57,12 +52,12 @@ class ARIAAttrScene(Scene):
         )
 
         # 动画序列
-        self._("W A I - A R I A 1.2 属性介绍")
+        Template.add_tts(self, "WAI-ARIA 1.2 属性介绍")
         self.play(
             LaggedStart(Write(title), Wait(1), lag_ratio=1),
             subcaption="WAI-ARIA 1.2 属性介绍",
         )
-        self._("全部 48 个无障碍属性简介")
+        Template.add_tts(self, "全部 48 个无障碍属性简介")
         self.play(
             LaggedStart(
                 AnimationGroup(
@@ -95,7 +90,9 @@ class ARIAAttrScene(Scene):
             origin_center = card.get_center()
 
             # 高亮当前卡片
-            self._(f"第 {i + 1} 个 {ARIA_ATTRIBUTES_DATA[i]["name"]}")
+            duration = Template.add_tts(
+                self, f"第 {i + 1} 个 {ARIA_ATTRIBUTES_DATA[i]["name"]}"
+            )
             self.play(
                 card.animate.scale(1.5).next_to(
                     title, DOWN + LEFT, buff=1, aligned_edge=LEFT
@@ -103,6 +100,7 @@ class ARIAAttrScene(Scene):
                 *[c.animate.set_opacity(0) for c in cards if c != card],
                 subcaption=f"第 {i + 1} 个 {ARIA_ATTRIBUTES_DATA[i]["name"]}",
             )
+            self.wait(max(ceil(duration) - 1, 0))
 
             # 解释属性
             self.explain_attribute(i, card)
@@ -134,11 +132,13 @@ class ARIAAttrScene(Scene):
         )
         final_group.arrange(DOWN, buff=0.5)
         final_group.move_to(ORIGIN)
-        self._("让我们一起提升 Web 无障碍体验，为所有用户创造包容性的数字环境")
+        Template.add_tts(
+            self, "让我们一起提升 Web 无障碍体验，为所有用户创造包容性的数字环境"
+        )
         self.play(
             LaggedStart(
                 FadeIn(final_group, shift=UP),
-                Wait(2),
+                Wait(6),
                 lag_ratio=1,
             ),
             subcaption="让我们一起提升 Web 无障碍体验，为所有用户创造包容性的数字环境",
@@ -208,22 +208,12 @@ class ARIAAttrScene(Scene):
         value_type.next_to(description, DOWN, buff=0.5, aligned_edge=LEFT)
 
         # 动画展示
-        wait_time = max(
-            (
-                len(
-                    ARIA_ATTRIBUTES_DATA[index]["description"]
-                    + ARIA_ATTRIBUTES_DATA[index]["value"]
-                )
-                * 0.02
-            ),
-            1,
-        )
-        self._(self.get_description_subcaption(index))
+        duration = Template.add_tts(self, self.get_description_subcaption(index))
         self.play(
             LaggedStart(
                 Write(description),
                 FadeIn(value_type, scale=0.8),
-                Wait(wait_time),
+                Wait(max(ceil(duration) - 2, 1)),
                 lag_ratio=1,
             ),
             subcaption=self.get_description_subcaption(index),

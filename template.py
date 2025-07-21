@@ -1,10 +1,12 @@
 """模版与实用工具类"""
 
+from json import dumps
 from os import environ
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Tuple
 from zlib import crc32
+from time import sleep
+from hashlib import blake2b
 
 from manim import (
     Scene,
@@ -87,13 +89,14 @@ class Template:
 
         match Path(filename).resolve().parent.name:
             case "ARIAAttr":
-                return 209
+                return 257
             case _:
                 return 100
 
     @staticmethod
     def splash_screen(scene: Scene):
         """显示 Android 风格的启动屏动画"""
+        scene.next_section("开始动画")
         avatar = ImageMobject(
             Path(__file__).resolve().parent / "assets" / "avatar.jpg"
         ).move_to(ORIGIN)
@@ -110,20 +113,21 @@ class Template:
         ).move_to(ORIGIN)
         scene.add(avatar)
         scene.add(mask)
-        scene.play(FadeIn(avatar), run_time=1)
-        scene.play(Create(progressbar, run_time=1))
+        scene.play(FadeIn(avatar))
+        scene.play(Create(progressbar))
         scene.wait(1)
         scene.play(
             mask.animate.scale(4),
             avatar.animate.scale(4).fade(1),
             progressbar.animate.scale(4).fade(1),
-            run_time=1,
         )
         scene.remove(avatar, progressbar, mask)
+        scene.next_section("正文", skip_animations=False)
 
     @staticmethod
     def end_screen(scene: Scene, *animations: Animation):
         """显示 ManimBanner 结束动画"""
+        scene.next_section("结束动画")
         banner = ManimBanner()
         scene.play(banner.create())
         scene.play(banner.expand())
@@ -132,7 +136,8 @@ class Template:
         scene.wait(0.1)
 
     @staticmethod
-    def tts(
+    def add_tts(
+        scene: Scene,
         text: str,
         voice: str = DEFAULT_VOICE,
         *,
@@ -140,33 +145,78 @@ class Template:
         rate: str = "+0%",
         volume: str = "+0%",
         pitch: str = "+0Hz",
-    ) -> Tuple[str, float]:
-        """使用 Microsoft Edge TTS 朗读文本"""
+    ) -> float:
+        """为视频添加 TTS 音频，并返回音频时长"""
+
+        scene.renderer.skip_animations = False  # 确保 Scene.add_sound() 方法不被跳过
+
         cache_dir = Path(__file__).resolve().parent / "media" / "audios"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        audio_path = (
-            cache_dir
-            / f"{crc32(f'?={text}&={voice}&={rate}&={volume}&={pitch}'.encode())}.mp3"
-        )
+        cache_key = blake2b(
+            f"?={text}&={voice}&={rate}&={volume}&={pitch}".encode(), digest_size=16
+        ).hexdigest()
+        audio_path = cache_dir / f"{cache_key}.mp3"
         audio_path_str = str(audio_path)
+
+        def use_this(use_cache: bool = False) -> float:
+            """使用这个"""
+            duration = MP3(audio_path_str).info.length
+
+            print(
+                f"TTS {'缓存' if use_cache else '生成'}："
+                f"“{text[:10] + "……" + text[-10:] if len(text) > 20 else text}” "
+                f"{audio_path} ({duration}s)"
+            )
+
+            if not use_cache:
+                with (cache_dir / "audios.jsonl").open("a", encoding="utf-8") as f:
+                    f.write(
+                        dumps(
+                            {
+                                "filename": audio_path.name,
+                                "duration": duration,
+                                "text": text,
+                                "voice": voice,
+                                "rate": rate,
+                                "volume": volume,
+                                "pitch": pitch,
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"
+                    )
+
+            scene.add_sound(audio_path_str)
+
+            return duration
 
         if audio_path.exists():
             try:
-                audio = MP3(audio_path_str)
-                if audio.info.length > 0:
-                    return audio_path_str, audio.info.length
+                if MP3(audio_path_str).info.length > 0:
+                    return use_this(True)
                 audio_path.unlink()
             except HeaderNotFoundError:
                 audio_path.unlink()
 
-        communicate = Communicate(
-            text=text,
-            voice=voice,
-            rate=rate,
-            volume=volume,
-            pitch=pitch,
-        )
-        communicate.save_sync(audio_path_str)
+        max_attempts = 3
 
-        return (audio_path_str, MP3(audio_path_str).info.length)
+        for attempt in range(1, max_attempts + 1):
+            try:
+                communicate = Communicate(
+                    text=text,
+                    voice=voice,
+                    rate=rate,
+                    volume=volume,
+                    pitch=pitch,
+                )
+                communicate.save_sync(audio_path_str)
+
+                return use_this()
+            except Exception:  # pylint: disable=broad-exception-caught
+                if attempt < max_attempts:
+                    sleep(30 ** ((attempt * 0.1) + 1))
+                else:
+                    raise
+
+        raise RuntimeError("无法生成音频文件")

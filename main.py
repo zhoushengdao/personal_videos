@@ -3,11 +3,14 @@
 """
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from subprocess import run
+from subprocess import run, CalledProcessError
 from sys import exit as sys_exit
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Callable
+from os import environ
+from functools import wraps
+from time import sleep
 
 
 def main():
@@ -83,35 +86,25 @@ def main():
         sys_exit(1)
 
 
-def handle_install(packages: list[str]):
-    """
-    执行更新并安装 pip 依赖包命令。
+def github_actions_retry(func: Callable) -> Callable:
+    """装饰器：在 GitHub Actions 环境中自动重试失败的操作（最多 3 次）"""
 
-    Args:
-        packages: 要新安装的 pip 包
-    """
-    req_in = Path("requirements.in")
-    req_txt = Path("requirements.txt")
+    @wraps(func)
+    def wrapper(project_name: Optional[str] = None):
+        max_attempts = 3 if environ.get("GITHUB_ACTIONS") == "true" else 1
 
-    # 确保 requirements.in 存在
-    if not req_in.exists():
-        req_in.touch()
+        for attempt in range(1, max_attempts + 1):
+            try:
+                return func(project_name)
+            except CalledProcessError:
+                if attempt < max_attempts:
+                    print("失败，重试中……")
+                    sleep(1)
+                else:
+                    raise
+        raise RuntimeError("操作失败")
 
-    # 添加依赖包到 requirements.in
-    if packages:
-        print(f"添加依赖包到 {req_in}：")
-        with req_in.open("a", encoding="utf-8") as f:
-            for pkg in packages:
-                print(f"  - {pkg}")
-                f.write(f"{pkg}\n")
-
-    # 编译依赖包
-    print("编译依赖包……")
-    run(["pip-compile", str(req_in)], check=True)
-
-    # 安装依赖包
-    print("安装依赖包……")
-    run(["pip", "install", "-r", str(req_txt)], check=True)
+    return wrapper
 
 
 def get_valid_projects():
@@ -164,6 +157,57 @@ def select_project(show_list: bool = True) -> str:
         return select_project(show_list=False)
 
 
+def validate_project(project_name: str):
+    """
+    确认项目文件夹存在且包含 main.py 文件。
+
+    Args:
+        project_name: 要验证的项目文件夹名称
+
+    Raises:
+        ValueError: 如果文件夹不存在或没有 main.py 文件时
+    """
+    project_path = Path(project_name)
+    if not project_path.is_dir():
+        raise ValueError(f'项目 "{project_name}" 不存在')
+
+    main_py = project_path / "main.py"
+    if not main_py.is_file():
+        raise ValueError(f'项目 "{project_name}" 中没有 main.py 文件')
+
+
+def handle_install(packages: list[str]):
+    """
+    执行更新并安装 pip 依赖包命令。
+
+    Args:
+        packages: 要新安装的 pip 包
+    """
+    req_in = Path("requirements.in")
+    req_txt = Path("requirements.txt")
+
+    # 确保 requirements.in 存在
+    if not req_in.exists():
+        req_in.touch()
+
+    # 添加依赖包到 requirements.in
+    if packages:
+        print(f"添加依赖包到 {req_in}：")
+        with req_in.open("a", encoding="utf-8") as f:
+            for pkg in packages:
+                print(f"  - {pkg}")
+                f.write(f"{pkg}\n")
+
+    # 编译依赖包
+    print("编译依赖包……")
+    run(["pip-compile", str(req_in)], check=True)
+
+    # 安装依赖包
+    print("安装依赖包……")
+    run(["pip", "install", "-r", str(req_txt)], check=True)
+
+
+@github_actions_retry
 def handle_preview(project_name: Optional[str] = None):
     """
     预览视频
@@ -178,6 +222,7 @@ def handle_preview(project_name: Optional[str] = None):
     run(["manim", "render", "-pql", f"{project_name}/main.py"], check=True)
 
 
+@github_actions_retry
 def handle_production(project_name: Optional[str] = None):
     """
     渲染高质量视频
@@ -251,25 +296,6 @@ def handle_new_project(project_name: str):
         f.write(MAIN_TEMPLATE.replace("<PROJECT_NAME>", project_name))
 
     print(f'项目 "{project_name}" 已创建')
-
-
-def validate_project(project_name: str):
-    """
-    确认项目文件夹存在且包含 main.py 文件。
-
-    Args:
-        project_name: 要验证的项目文件夹名称
-
-    Raises:
-        ValueError: 如果文件夹不存在或没有 main.py 文件时
-    """
-    project_path = Path(project_name)
-    if not project_path.is_dir():
-        raise ValueError(f'项目 "{project_name}" 不存在')
-
-    main_py = project_path / "main.py"
-    if not main_py.is_file():
-        raise ValueError(f'项目 "{project_name}" 中没有 main.py 文件')
 
 
 if __name__ == "__main__":
